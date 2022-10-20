@@ -14,7 +14,7 @@ import { AisWebSupResp, SupItem } from './model/suplemento-model';
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.scss'],
 })
-export class HomeComponent implements OnInit {
+export class HomeComponent {
   isPesquisando = false;
   x2js = new X2JS();
   localidadesPadroes = LOCALIDADES_PADRAO_PESQUISA;
@@ -23,8 +23,6 @@ export class HomeComponent implements OnInit {
   localidadesSalvares: Localidade[] = [];
 
   constructor(private service: AiswebService, private router: Router) {}
-
-  ngOnInit(): void {}
 
   realizaPesquisa(): void {
     let icaos = LOCALIDADES_PADRAO_PESQUISA;
