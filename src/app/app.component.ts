@@ -1,16 +1,22 @@
 import { Component } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
 import { first, Observable, of } from 'rxjs';
 import * as X2JS from 'x2js';
-import { AiswebService } from './home/aisweb.service';
-import { AisWebInfotempResp, ItemInfotemp } from './home/model/infotemp-model';
-import { Localidade, LOCALIDADES_PADRAO_PESQUISA } from './home/model/localidade-model';
-import { AisWebNotamResp, ItemNotam } from './home/model/notam-model';
-import { AisWebSupResp, SupItem } from './home/model/suplemento-model';
+
+import { EditDialogComponent } from './edit-dialog/edit-dialog.component';
+import { AiswebService } from './service/aisweb.service';
+import { AisWebInfotempResp, ItemInfotemp } from './model/infotemp-model';
+import {
+  Localidade,
+  LOCALIDADES_PADRAO_PESQUISA,
+} from './model/localidade-model';
+import { AisWebNotamResp, ItemNotam } from './model/notam-model';
+import { AisWebSupResp, SupItem } from './model/suplemento-model';
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
-  styleUrls: ['./app.component.scss']
+  styleUrls: ['./app.component.scss'],
 })
 export class AppComponent {
   isPesquisando = false;
@@ -19,8 +25,9 @@ export class AppComponent {
   dataHora = new Date().toLocaleString();
   listaLocalidades$: Observable<Localidade[]> = of([]);
   localidadesSalvares: Localidade[] = [];
+  icaoLocalidade: string;
 
-  constructor(private service: AiswebService) {}
+  constructor(private service: AiswebService, public dialog: MatDialog) {}
 
   realizaPesquisa(): void {
     let icaos = LOCALIDADES_PADRAO_PESQUISA;
@@ -32,7 +39,7 @@ export class AppComponent {
   }
 
   buscaInformacoes(icao: string): void {
-    let localBusca: Localidade;
+    let localBusca: Localidade = { idIcao: icao };
     this.service
       .verificaNotam(icao)
       .pipe(first())
@@ -44,7 +51,7 @@ export class AppComponent {
         if (items) {
           notamsArr = listaConcat.concat(items);
         }
-        localBusca = { idIcao: icao, notams: notamsArr };
+        localBusca = { ...localBusca, notams: notamsArr };
       });
     this.service
       .verificaSuplemento(icao)
@@ -72,12 +79,19 @@ export class AppComponent {
         }
         localBusca = { ...localBusca, infoTemp: infoArr };
         this.localidadesSalvares.push(localBusca);
-        this.listaLocalidades$ = of(this.localidadesSalvares);
       });
+    this.listaLocalidades$ = of(this.localidadesSalvares);
   }
 
-  refresh(): void {
+  editaLocalidades(): void {
+    const dialogRef = this.dialog.open(EditDialogComponent);
+    dialogRef.afterClosed().subscribe((result) => {
+      console.log('restult dialog', result);
+      this.icaoLocalidade = result;
+    });
+  }
+
+  refazPesquisa(): void {
     window.location.reload();
   }
-
 }

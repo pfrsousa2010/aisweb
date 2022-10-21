@@ -21,7 +21,13 @@
     </div>
 
     <div *ngIf="!isPesquisando" class="local-pesquisa">
-      <span>Localidades da pesquisa ({{localidadesPadroes.length}})</span>
+      <div class="local-icon">
+        <span>Localidades da pesquisa ({{localidadesPadroes.length}})</span>
+        <span class="material-symbols-outlined edit-icon" (click)="editaLocalidades()">
+          edit
+          </span>
+
+      </div>
       <div class="locais" >
         <small *ngFor="let locais of localidadesPadroes"> {{ locais | uppercase }} </small>
       </div>
@@ -30,7 +36,7 @@
 
     <div class="informacoes">
       <div class="refazer" *ngIf="isPesquisando">
-        <a href="#"><strong>Refazer pesquisa</strong></a>
+        <a href="#" (click)="refazPesquisa()"><strong>Refazer pesquisa</strong></a>
         <span>Pesquisa realizada em: {{ dataHora }}</span>
       </div>
       <div class="localidade" *ngFor="let localidade of listaLocalidades$ | async">
