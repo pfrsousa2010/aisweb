@@ -10,7 +10,7 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 export class EditDialogComponent {
   usuario: string;
   senha: string;
-  isAutorizado = true;
+  isAutorizado = false;
   hide = true;
   localidades: Array<string>;
 
