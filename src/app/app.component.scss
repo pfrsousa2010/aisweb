@@ -17,6 +17,21 @@
       padding: 10px;
       border-radius: 20px;
 
+      .local-icon {
+        display: flex;
+        flex-direction: row;
+        .edit-icon {
+          margin-left: 10px;
+          font-size: 20px;
+
+        }
+
+        .edit-icon:hover {
+          color: green;
+          cursor: pointer;
+        }
+      }
+
       .locais {
         display: flex;
         flex-direction: row;

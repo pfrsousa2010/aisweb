@@ -1,0 +1,30 @@
+<h1 mat-dialog-title>Edição das localidades</h1>
+
+<div *ngIf="!isAutorizado" class="login">
+  <mat-form-field appearance="outline" color="blue">
+    <mat-label>Usuário</mat-label>
+    <input matInput [(ngModel)]="usuario" type="text">
+  </mat-form-field>
+  <mat-form-field appearance="outline" color="blue">
+    <mat-label>Senha</mat-label>
+    <input matInput [(ngModel)]="senha" [type]="hide ? 'password' : 'text'">
+    <mat-icon matSuffix (click)="hide = !hide">{{hide ? 'visibility_off' : 'visibility'}}</mat-icon>
+  </mat-form-field>
+  <div mat-dialog-actions class="botoes-acao">
+    <button mat-button mat-stroked-button color="primary" (click)="login()">Entrar</button>
+    <button mat-button (click)="fecharDialog()">Cancelar</button>
+  </div>
+</div>
+
+<div class="input-icao" *ngIf="isAutorizado">
+  <mat-form-field appearance="outline" color="blue">
+    <mat-label>Localidade</mat-label>
+    <input matInput [(ngModel)]="data" type="text" maxlength="4">
+    <mat-hint>Max. 4 letras</mat-hint>
+  </mat-form-field>
+  <div mat-dialog-actions class="botoes-acao">
+    <button mat-button mat-stroked-button color="primary" (click)="inserirLocalidade()" cdkFocusInitial>Inserir</button>
+    <button mat-button mat-stroked-button color="warn" (click)="apagarLocalidade()" cdkFocusInitial>Deletar</button>
+    <button mat-button (click)="fecharDialog()">Cancelar</button>
+  </div>
+</div>
