@@ -1,5 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { LocalidadeCarregada } from '../model/localidade-model';
 
 @Injectable({
   providedIn: 'root',
@@ -31,7 +32,7 @@ export class AiswebService {
   }
 
   carregaAsLocalidades() {
-    return this.httpCliente.get(
+    return this.httpCliente.get<LocalidadeCarregada[]>(
       'https://obscure-brook-64945.herokuapp.com/localidade'
     )
   }

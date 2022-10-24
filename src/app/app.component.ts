@@ -1,33 +1,36 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { first, Observable, of } from 'rxjs';
+import { finalize, first, Observable, of } from 'rxjs';
 import * as X2JS from 'x2js';
 
 import { EditDialogComponent } from './edit-dialog/edit-dialog.component';
-import { AiswebService } from './service/aisweb.service';
 import { AisWebInfotempResp, ItemInfotemp } from './model/infotemp-model';
-import {
-  Localidade,
-  LOCALIDADES_PADRAO_PESQUISA,
-} from './model/localidade-model';
+import { Localidade, LocalidadeCarregada, LOCALIDADES_PADRAO_PESQUISA } from './model/localidade-model';
 import { AisWebNotamResp, ItemNotam } from './model/notam-model';
 import { AisWebSupResp, SupItem } from './model/suplemento-model';
+import { AiswebService } from './service/aisweb.service';
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss'],
 })
-export class AppComponent {
+export class AppComponent implements OnInit {
   isPesquisando = false;
   x2js = new X2JS();
-  localidadesPadroes = LOCALIDADES_PADRAO_PESQUISA;
+  // localidadesPadroes = LOCALIDADES_PADRAO_PESQUISA;
   dataHora = new Date().toLocaleString();
   listaLocalidades$: Observable<Localidade[]> = of([]);
   localidadesSalvares: Localidade[] = [];
   icaoLocalidade: string;
+  localidadesCarregadas$: Observable<LocalidadeCarregada[]>;
+  loading = true
 
   constructor(private service: AiswebService, public dialog: MatDialog) {}
+
+  ngOnInit(): void {
+    this.localidadesCarregadas$ = this.service.carregaAsLocalidades().pipe(finalize(() => this.loading = false));
+  }
 
   realizaPesquisa(): void {
     let icaos = LOCALIDADES_PADRAO_PESQUISA;

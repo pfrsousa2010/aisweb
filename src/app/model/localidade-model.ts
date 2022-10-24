@@ -9,6 +9,11 @@ export interface Localidade {
   infoTemp?: ItemInfotemp[];
 }
 
+export interface LocalidadeCarregada {
+  id?: number;
+  icao?: ItemNotam[];
+}
+
 export const LOCALIDADES_PADRAO_PESQUISA = [
   'SSAP',
   'SSOG',

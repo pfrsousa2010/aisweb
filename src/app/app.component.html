@@ -21,15 +21,18 @@
     </div>
 
     <div *ngIf="!isPesquisando" class="local-pesquisa">
-      <div class="local-icon">
-        <span>Localidades da pesquisa ({{localidadesPadroes.length}})</span>
+      <div *ngIf="loading">
+        <mat-spinner [diameter]="30"></mat-spinner>
+      </div>
+      <div class="local-icon" *ngIf="!loading">
+        <span>Localidades da pesquisa ( {{ (localidadesCarregadas$ | async)?.length }} )</span>
         <span class="material-symbols-outlined edit-icon" (click)="editaLocalidades()">
           edit
           </span>
 
       </div>
       <div class="locais" >
-        <small *ngFor="let locais of localidadesPadroes"> {{ locais | uppercase }} </small>
+        <small *ngFor="let locais of localidadesCarregadas$ | async"> {{ locais.icao }} </small>
       </div>
     </div>
 
