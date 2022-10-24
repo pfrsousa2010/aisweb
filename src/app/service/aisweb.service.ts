@@ -29,4 +29,10 @@ export class AiswebService {
       { responseType: 'text' }
     );
   }
+
+  carregaAsLocalidades() {
+    return this.httpCliente.get(
+      'https://obscure-brook-64945.herokuapp.com/localidade'
+    )
+  }
 }
