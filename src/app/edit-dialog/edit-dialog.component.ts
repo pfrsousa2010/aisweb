@@ -1,6 +1,9 @@
-import { LOCALIDADES_PADRAO_PESQUISA } from '../model/localidade-model';
 import { Component, Inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { MatSnackBar } from '@angular/material/snack-bar';
+
+import { AiswebService } from '../service/aisweb.service';
+import { LocalidadeCarregada } from './../model/localidade-model';
 
 @Component({
   selector: 'app-edit-dialog',
@@ -13,12 +16,17 @@ export class EditDialogComponent {
   isAutorizado = false;
   hide = true;
   localidades: Array<string>;
+  icao: string;
+  ultimoId: number;
+  isAdicionada = false;
 
   constructor(
+    private snackBar: MatSnackBar,
+    private service: AiswebService,
     public dialogRef: MatDialogRef<EditDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: string
+    @Inject(MAT_DIALOG_DATA) public data: LocalidadeCarregada[]
   ) {
-    this.localidades = LOCALIDADES_PADRAO_PESQUISA
+    this.ultimoId = data.at(-1).id;
   }
 
   login(): void {
@@ -32,17 +40,71 @@ export class EditDialogComponent {
   }
 
   apagarLocalidade(): void {
-    console.log('Apagar: ', this.data);
-  }
-//Achar uma forma de LOCALIDADES_PADRAO_PESQUISA ser editável
-  inserirLocalidade(): void {
-    if (this.data != null) {
-      LOCALIDADES_PADRAO_PESQUISA.push(this.data)
+    let localidadeApagar = this.data.find(
+      (localidade) => localidade.icao === this.icao
+    );
+    if (localidadeApagar != null && this.localidadeExiste(this.icao)) {
+      this.service.deletaLocalidade(localidadeApagar.id).subscribe({
+        next: () => null,
+        error: (erro) => console.log('Erro Apagar Localidade: ', erro),
+        complete: () => {
+          this.snackBar.open(
+            `Localidade ${this.icao} apagada com sucesso!`,
+            'OK',
+            {
+              duration: 1500,
+            }
+          ),
+            this.localidadesEditadas();
+        },
+      });
+    } else if (this.localidadeExiste(this.icao)) {
+      this.snackBar.open(`Localidade ${this.icao} não está na lista.`, 'OK', {
+        duration: 3000,
+      });
     }
-    console.log('Inserir: ', this.data);
+  }
+
+  inserirLocalidade(): void {
+    if (!this.localidadeExiste(this.icao)) {
+      let localidadeAdicionar: LocalidadeCarregada = {
+        id: this.ultimoId + 1,
+        icao: this.icao,
+      };
+      this.service.adicionaLocalidade(localidadeAdicionar).subscribe({
+        next: (e) => console.log(e),
+        error: (erro) => console.log('Erro Inserir Localidade: ', erro),
+        complete: () => {
+          this.snackBar.open(
+            `Localidade ${this.icao} adicionada com sucesso!`,
+            'OK',
+            {
+              duration: 1500,
+            }
+          ),
+            this.localidadesEditadas();
+        },
+      });
+    } else if (this.localidadeExiste(this.icao)) {
+      this.snackBar.open(`Localidade ${this.icao} já existe.`, 'OK', {
+        duration: 3000,
+      });
+    }
+  }
+
+  localidadesEditadas() {
+    this.isAdicionada = true;
+    setTimeout(() => this.fecharDialog(), 2500);
+  }
+
+  localidadeExiste(icao: string): boolean {
+    let existeIcao = this.data.find(
+      (localidade) => localidade.icao === icao
+    )?.icao;
+    return icao === existeIcao ? true : false;
   }
 
   fecharDialog(): void {
-    this.dialogRef.close();
+    this.dialogRef.close(this.isAdicionada);
   }
 }

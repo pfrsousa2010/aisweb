@@ -11,7 +11,7 @@ export interface Localidade {
 
 export interface LocalidadeCarregada {
   id?: number;
-  icao?: ItemNotam[];
+  icao?: string;
 }
 
 export const LOCALIDADES_PADRAO_PESQUISA = [

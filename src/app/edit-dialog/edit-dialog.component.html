@@ -1,6 +1,6 @@
 <h1 mat-dialog-title>Edição das localidades</h1>
 
-<div *ngIf="!isAutorizado" class="login">
+<div *ngIf="isAutorizado" class="login">
   <mat-form-field appearance="outline" color="blue">
     <mat-label>Usuário</mat-label>
     <input matInput [(ngModel)]="usuario" type="text">
@@ -16,15 +16,18 @@
   </div>
 </div>
 
-<div class="input-icao" *ngIf="isAutorizado">
+<div class="input-icao" *ngIf="!isAutorizado">
   <mat-form-field appearance="outline" color="blue">
     <mat-label>Localidade</mat-label>
-    <input matInput [(ngModel)]="data" type="text" maxlength="4">
-    <mat-hint>Max. 4 letras</mat-hint>
+    <input matInput [(ngModel)]="icao" type="text" maxlength="4" minlength="4"
+      oninput="this.value = this.value.toUpperCase()">
+    <mat-hint>Localidade com 4 letras</mat-hint>
   </mat-form-field>
   <div mat-dialog-actions class="botoes-acao">
-    <button mat-button mat-stroked-button color="primary" (click)="inserirLocalidade()" cdkFocusInitial>Inserir</button>
-    <button mat-button mat-stroked-button color="warn" (click)="apagarLocalidade()" cdkFocusInitial>Deletar</button>
+    <button mat-button mat-stroked-button color="primary" (click)="inserirLocalidade()" cdkFocusInitial
+      [disabled]="icao?.length < 4">Inserir</button>
+    <button mat-button mat-stroked-button color="warn" (click)="apagarLocalidade()" cdkFocusInitial
+      [disabled]="icao?.length < 4">Apagar</button>
     <button mat-button (click)="fecharDialog()">Cancelar</button>
   </div>
 </div>

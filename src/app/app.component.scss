@@ -41,6 +41,13 @@
           margin-left: 5px;
         }
       }
+
+      .tabela {
+        margin-top: 10px;
+        display: grid;
+        gap: 1em;
+        grid-template-columns: repeat(18, 1fr);
+      }
     }
 
     .pesquisa {

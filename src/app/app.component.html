@@ -10,12 +10,11 @@
       <h3>NOTAM | SUPLEMENTOS | INFOTEMP</h3>
       <form class="form" (ngSubmit)="realizaPesquisa()">
         <div class="form-group">
-          <!-- <input class="input" type="text" [(ngModel)]="inputLocalidade" name="localidade"> -->
         </div>
         <div class="botoes">
-          <button mat-raised-button color="primary" class="btn-buscar" type="submit">Buscar</button>
-          <!-- <button mat-raised-button color="primary" class="btn-buscar" type="submit">Buscar</button> -->
-          <!-- <button mat-raised-button color="warn" class="btn-limpar" type="reset">Limpar</button> -->
+          <button mat-raised-button color="primary" class="btn-buscar" type="submit" [disabled]="loading">
+            Buscar
+          </button>
         </div>
       </form>
     </div>
@@ -28,11 +27,15 @@
         <span>Localidades da pesquisa ( {{ (localidadesCarregadas$ | async)?.length }} )</span>
         <span class="material-symbols-outlined edit-icon" (click)="editaLocalidades()">
           edit
-          </span>
+        </span>
 
       </div>
-      <div class="locais" >
+      <!-- <div class="locais">
         <small *ngFor="let locais of localidadesCarregadas$ | async"> {{ locais.icao }} </small>
+      </div> -->
+      <div class="tabela">
+        <small *ngFor="let locais of localidadesCarregadas$ | async"> {{ locais.icao }} </small>
+
       </div>
     </div>
 
@@ -80,4 +83,3 @@
     </div>
   </div>
 </div>
-

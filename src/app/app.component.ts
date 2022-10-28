@@ -5,7 +5,7 @@ import * as X2JS from 'x2js';
 
 import { EditDialogComponent } from './edit-dialog/edit-dialog.component';
 import { AisWebInfotempResp, ItemInfotemp } from './model/infotemp-model';
-import { Localidade, LocalidadeCarregada, LOCALIDADES_PADRAO_PESQUISA } from './model/localidade-model';
+import { Localidade, LocalidadeCarregada } from './model/localidade-model';
 import { AisWebNotamResp, ItemNotam } from './model/notam-model';
 import { AisWebSupResp, SupItem } from './model/suplemento-model';
 import { AiswebService } from './service/aisweb.service';
@@ -24,18 +24,28 @@ export class AppComponent implements OnInit {
   localidadesSalvares: Localidade[] = [];
   icaoLocalidade: string;
   localidadesCarregadas$: Observable<LocalidadeCarregada[]>;
-  loading = true
+  loading = true;
+  localidadePesquisa: string[];
+  localidadesCarregadas: LocalidadeCarregada[];
 
   constructor(private service: AiswebService, public dialog: MatDialog) {}
 
   ngOnInit(): void {
-    this.localidadesCarregadas$ = this.service.carregaAsLocalidades().pipe(finalize(() => this.loading = false));
+    this.localidadesCarregadas$ = this.service
+      .carregaAsLocalidades()
+      .pipe(finalize(() => (this.loading = false)));
+    this.localidadesCarregadas$.subscribe((carregadas) => {
+      (this.localidadePesquisa = carregadas.map(
+        (localidade) => localidade.icao
+      )),
+        (this.localidadesCarregadas = carregadas);
+    });
   }
 
   realizaPesquisa(): void {
-    let icaos = LOCALIDADES_PADRAO_PESQUISA;
+    // let icaos = LOCALIDADES_PADRAO_PESQUISA;
     // let icaos = this.localidade.replace(/\s/g, '').split(','); Quando quiser pesquisar por localidades independentes
-    for (const element of icaos) {
+    for (const element of this.localidadePesquisa) {
       this.buscaInformacoes(element);
     }
     this.isPesquisando = true;
@@ -87,10 +97,11 @@ export class AppComponent implements OnInit {
   }
 
   editaLocalidades(): void {
-    const dialogRef = this.dialog.open(EditDialogComponent);
+    const dialogRef = this.dialog.open(EditDialogComponent, {
+      data: this.localidadesCarregadas,
+    });
     dialogRef.afterClosed().subscribe((result) => {
-      console.log('restult dialog', result);
-      this.icaoLocalidade = result;
+      result ? this.refazPesquisa() : null;
     });
   }
 
