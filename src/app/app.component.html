@@ -20,19 +20,21 @@
     </div>
 
     <div *ngIf="!isPesquisando" class="local-pesquisa">
-      <div *ngIf="loading">
-        <mat-spinner [diameter]="30"></mat-spinner>
+      <div class="icon-table" *ngIf="localidadesCarregadas$ | async as carregadas; else spinner">
+        <div class="local-icon">
+          <span>Localidades da pesquisa ( {{ carregadas?.length }} )</span>
+          <span class="material-symbols-outlined edit-icon" (click)="editaLocalidades()">
+            edit
+          </span>
+        </div>
+        <div class="tabela">
+          <small *ngFor="let locais of localidadesCarregadas$ | async"> {{ locais.icao }} </small>
+        </div>
       </div>
-      <div class="local-icon" *ngIf="!loading">
-        <span>Localidades da pesquisa ( {{ (localidadesCarregadas$ | async)?.length }} )</span>
-        <span class="material-symbols-outlined edit-icon" (click)="editaLocalidades()">
-          edit
-        </span>
-
-      </div>
-      <div class="tabela">
-        <small *ngFor="let locais of localidadesCarregadas$ | async"> {{ locais.icao }} </small>
-      </div>
+      <ng-template #spinner>
+        <span style="margin-bottom: 10px;">Buscando as localidades...</span>
+        <mat-spinner [diameter]="60"></mat-spinner>
+      </ng-template>
     </div>
 
 
@@ -41,38 +43,45 @@
         <a href="#" (click)="refazPesquisa()"><strong>Refazer pesquisa</strong></a>
         <span>Pesquisa realizada em: {{ dataHora }}</span>
       </div>
-      <div class="localidade" *ngFor="let localidade of listaLocalidades$ | async">
-        <h2>{{ localidade.idIcao | uppercase }}</h2>
-        <div class="info-item">
-          <span><strong>{{ localidade.notams?.length > 0 ? 'NOTAM' : 'SEM NOTAM' }}</strong></span>
-          <span *ngIf="localidade.notams?.length > 0">({{localidade.notams?.length}})</span>
-          <div class="infos" *ngFor="let notam of localidade.notams">
-            <span>{{ notam.n }} {{ notam.tp }} {{ notam.ref }} - Criado em: {{ notam.dt | date:
-              'dd/MM/YYYY hh:mm' }}</span>
-            <span>Categoria: {{ notam.cat }}</span>
-            <span><strong>{{ notam.e }}</strong></span>
-            <span>Período: {{ notam.b | convertDataPipe }} até {{ notam.c | convertDataPipe }}</span>
-            <span>Origem: {{ notam.origem }}</span>
+      <div *ngIf="isBuscando">
+        <span>Carregando as informações...</span>
+        <mat-progress-bar style="margin-top: 10px;" mode="indeterminate"></mat-progress-bar>
+      </div>
+      <div *ngIf="!isBuscando" class="info-localidades">
+        <div class="localidade" *ngFor="let localidade of listaLocalidades$ | async">
+          <h2>{{ localidade.idIcao | uppercase }}</h2>
+          <div class="info-item">
+            <span><strong>{{ localidade.notams?.length > 0 ? 'NOTAM' : 'SEM NOTAM' }}</strong></span>
+            <span *ngIf="localidade.notams?.length > 0">({{localidade.notams?.length}})</span>
+            <div class="infos" *ngFor="let notam of localidade.notams">
+              <span>{{ notam.n }} {{ notam.tp }} {{ notam.ref }} - Criado em: {{ notam.dt | date:
+                'dd/MM/YYYY hh:mm' }}</span>
+              <span>Categoria: {{ notam.cat }}</span>
+              <span><strong>{{ notam.e }}</strong></span>
+              <span>Período: {{ notam.b | convertDataPipe }} até {{ notam.c | convertDataPipe }}</span>
+              <span>Origem: {{ notam.origem }}</span>
+            </div>
           </div>
-        </div>
-        <div class="info-item">
-          <span><strong>{{ localidade.suplementos?.length > 0 ? 'SUPLEMENTOS' : 'SEM SUPLEMENTOS' }}</strong></span>
-          <span *ngIf="localidade.suplementos?.length > 0">({{localidade.suplementos?.length}})</span>
-          <div class="infos" *ngFor="let sup of localidade.suplementos">
-            <span>{{sup.serie}}{{ sup.n }} - {{ sup.titulo }}</span>
-            <span><strong>{{ sup.texto }}</strong></span>
-            <span>{{ sup.duracao }}</span>
-            <span>{{ sup.ref }}</span>
+          <div class="info-item">
+            <span><strong>{{ localidade.suplementos?.length > 0 ? 'SUPLEMENTOS' : 'SEM SUPLEMENTOS' }}</strong></span>
+            <span *ngIf="localidade.suplementos?.length > 0">({{localidade.suplementos?.length}})</span>
+            <div class="infos" *ngFor="let sup of localidade.suplementos">
+              <span>{{sup.serie}}{{ sup.n }} - {{ sup.titulo }}</span>
+              <span><strong>{{ sup.texto }}</strong></span>
+              <span>{{ sup.duracao }}</span>
+              <span>{{ sup.ref }}</span>
+            </div>
           </div>
-        </div>
-        <div class="info-item">
-          <span><strong>{{ localidade.infoTemp?.length > 0 ? 'INFOTEMP' : 'SEM INFOTEMP' }}</strong></span>
-          <span *ngIf="localidade.infoTemp?.length > 0">({{localidade.infoTemp?.length}})</span>
-          <div class="infos" *ngFor="let temp of localidade.infoTemp">
-            <span>{{ temp.n }}</span>
-            <span><strong>{{ temp.rmk }}</strong></span>
-            <span>Duração: {{ temp.startdate | infotempFormatData }} até {{ temp.enddate | infotempFormatData }}</span>
-            <span>Divulgado em: {{ temp.dt | infotempFormatData }}</span>
+          <div class="info-item">
+            <span><strong>{{ localidade.infoTemp?.length > 0 ? 'INFOTEMP' : 'SEM INFOTEMP' }}</strong></span>
+            <span *ngIf="localidade.infoTemp?.length > 0">({{localidade.infoTemp?.length}})</span>
+            <div class="infos" *ngFor="let temp of localidade.infoTemp">
+              <span>{{ temp.n }}</span>
+              <span><strong>{{ temp.rmk }}</strong></span>
+              <span>Duração: {{ temp.startdate | infotempFormatData }} até {{ temp.enddate | infotempFormatData
+                }}</span>
+              <span>Divulgado em: {{ temp.dt | infotempFormatData }}</span>
+            </div>
           </div>
         </div>
       </div>
