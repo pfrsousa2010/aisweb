@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { finalize, first, Observable, of } from 'rxjs';
+import { concatMap, finalize, map, Observable, of, tap } from 'rxjs';
 import * as X2JS from 'x2js';
 
 import { EditDialogComponent } from './edit-dialog/edit-dialog.component';
@@ -17,6 +17,7 @@ import { AiswebService } from './service/aisweb.service';
 })
 export class AppComponent implements OnInit {
   isPesquisando = false;
+  isBuscando = false;
   x2js = new X2JS();
   // localidadesPadroes = LOCALIDADES_PADRAO_PESQUISA;
   dataHora = new Date().toLocaleString();
@@ -43,8 +44,6 @@ export class AppComponent implements OnInit {
   }
 
   realizaPesquisa(): void {
-    // let icaos = LOCALIDADES_PADRAO_PESQUISA;
-    // let icaos = this.localidade.replace(/\s/g, '').split(','); Quando quiser pesquisar por localidades independentes
     for (const element of this.localidadePesquisa) {
       this.buscaInformacoes(element);
     }
@@ -52,48 +51,69 @@ export class AppComponent implements OnInit {
   }
 
   buscaInformacoes(icao: string): void {
+    this.isBuscando = true;
     let localBusca: Localidade = { idIcao: icao };
     this.service
       .verificaNotam(icao)
-      .pipe(first())
-      .subscribe((resp) => {
-        let notamsArr: ItemNotam[] = [];
-        const listaConcat: ItemNotam[] = [];
-        const notamResposta = this.x2js.xml2js<AisWebNotamResp>(resp);
-        const items = notamResposta.aisweb.notam?.item;
-        if (items) {
-          notamsArr = listaConcat.concat(items);
-        }
-        localBusca = { ...localBusca, notams: notamsArr };
+      .pipe(
+        concatMap((notam) =>
+          this.service
+            .verificaSuplemento(icao)
+            .pipe(
+              concatMap((suplemento) =>
+                this.service
+                  .verificaInfotemp(icao)
+                  .pipe(map((infotemp) => ({ notam, suplemento, infotemp })))
+              )
+            )
+        ),
+        tap(() => (this.isBuscando = false))
+      )
+      .subscribe({
+        next: (informacoes) =>
+          (localBusca = {
+            ...localBusca,
+            notams: this.setItemsNotams(informacoes.notam),
+            suplementos: this.setItemsSuplementos(informacoes.suplemento),
+            infoTemp: this.setItemInfotemp(informacoes.infotemp),
+          }),
+        error: (erro) => console.log('Busca informações erro: ', erro),
+        complete: () => {
+          this.localidadesSalvares.push(localBusca);
+          this.listaLocalidades$ = of(
+            this.localidadesSalvares.sort((a, b) =>
+              a.idIcao.localeCompare(b.idIcao)
+            )
+          );
+        },
       });
-    this.service
-      .verificaSuplemento(icao)
-      .pipe(first())
-      .subscribe((resp) => {
-        let supArr: SupItem[] = [];
-        const listaConcat: SupItem[] = [];
-        const suplementoResp = this.x2js.xml2js<AisWebSupResp>(resp);
-        const items = suplementoResp.aisweb.suplementos?.item;
-        if (items) {
-          supArr = listaConcat.concat(items);
-        }
-        localBusca = { ...localBusca, suplementos: supArr };
-      });
-    this.service
-      .verificaInfotemp(icao)
-      .pipe(first())
-      .subscribe((resp) => {
-        let infoArr: ItemInfotemp[] = [];
-        const listaConcat: ItemInfotemp[] = [];
-        const infotempResp = this.x2js.xml2js<AisWebInfotempResp>(resp);
-        const items = infotempResp.aisweb.infotemp.item;
-        if (items) {
-          infoArr = listaConcat.concat(items);
-        }
-        localBusca = { ...localBusca, infoTemp: infoArr };
-        this.localidadesSalvares.push(localBusca);
-      });
-    this.listaLocalidades$ = of(this.localidadesSalvares);
+  }
+
+  setItemsNotams(item: string): ItemNotam[] {
+    const listaConcat: ItemNotam[] = [];
+    const notamResposta = this.x2js.xml2js<AisWebNotamResp>(item);
+    const items = notamResposta.aisweb.notam?.item;
+    if (items) {
+      return listaConcat.concat(items);
+    }
+  }
+
+  setItemsSuplementos(item: string): SupItem[] {
+    const listaConcat: SupItem[] = [];
+    const suplementoResp = this.x2js.xml2js<AisWebSupResp>(item);
+    const items = suplementoResp.aisweb.suplementos?.item;
+    if (items) {
+      return listaConcat.concat(items);
+    }
+  }
+
+  setItemInfotemp(item: string): ItemInfotemp[] {
+    const listaConcat: ItemInfotemp[] = [];
+    const infotempResp = this.x2js.xml2js<AisWebInfotempResp>(item);
+    const items = infotempResp.aisweb.infotemp.item;
+    if (items) {
+      return listaConcat.concat(items);
+    }
   }
 
   editaLocalidades(): void {

@@ -16,6 +16,7 @@ import { AppComponent } from './app.component';
 import { EditDialogComponent } from './edit-dialog/edit-dialog.component';
 import { ConvertDataPipePipe } from './pipe/convert-data-pipe.pipe';
 import { InfotempFormatDataPipe } from './pipe/infotemp-format-data.pipe';
+import {MatProgressBarModule} from '@angular/material/progress-bar';
 
 @NgModule({
   declarations: [
@@ -37,6 +38,8 @@ import { InfotempFormatDataPipe } from './pipe/infotemp-format-data.pipe';
     MatInputModule,
     MatDialogModule,
     MatSnackBarModule,
+    MatProgressSpinnerModule,
+    MatProgressBarModule
   ],
   providers: [],
   bootstrap: [AppComponent],

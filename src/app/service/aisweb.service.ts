@@ -8,8 +8,6 @@ import { LocalidadeCarregada } from '../model/localidade-model';
 })
 export class AiswebService {
   constructor(private httpClient: HttpClient) {}
-  private url =
-    'https://aisweb.decea.mil.br/api/?apiKey=1948175746&apiPass=cba6ae56-a1dd-11ea-9f40-00505680c1b4&area=notam&icaocode=';
 
   verificaNotam(localidade: string) {
     return this.httpClient.get(
