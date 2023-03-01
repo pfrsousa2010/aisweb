@@ -5,7 +5,7 @@ import * as X2JS from 'x2js';
 
 import { EditDialogComponent } from './edit-dialog/edit-dialog.component';
 import { AisWebInfotempResp, ItemInfotemp } from './model/infotemp-model';
-import { Localidade, LocalidadeCarregada } from './model/localidade-model';
+import { Localidade, LocalidadeCarregada, LOCALIDADES_PADRAO_PESQUISA } from './model/localidade-model';
 import { AisWebNotamResp, ItemNotam } from './model/notam-model';
 import { AisWebSupResp, SupItem } from './model/suplemento-model';
 import { AiswebService } from './service/aisweb.service';
@@ -19,13 +19,13 @@ export class AppComponent implements OnInit {
   isPesquisando = false;
   isBuscando = false;
   x2js = new X2JS();
-  // localidadesPadroes = LOCALIDADES_PADRAO_PESQUISA;
+  localidadesPadroes = LOCALIDADES_PADRAO_PESQUISA;
   dataHora = new Date().toLocaleString();
   listaLocalidades$: Observable<Localidade[]> = of([]);
   localidadesSalvares: Localidade[] = [];
   icaoLocalidade: string;
   localidadesCarregadas$: Observable<LocalidadeCarregada[]>;
-  loading = true;
+  loading = false;
   localidadePesquisa: string[];
   localidadesCarregadas: LocalidadeCarregada[];
 
@@ -44,7 +44,7 @@ export class AppComponent implements OnInit {
   }
 
   realizaPesquisa(): void {
-    for (const element of this.localidadePesquisa) {
+    for (const element of this.localidadesPadroes) {
       this.buscaInformacoes(element);
     }
     this.isPesquisando = true;
